@@ -1,0 +1,134 @@
+Gizmo {
+ help "<b><u>L_ChannelSolo_v01\t</b></u>\nShuffles the chosen channel into RGBA\n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+ addUserKnob {20 ChannelSolo}
+ addUserKnob {41 in l "input Layer" t "The layer set to operate on\n" T shuffle_In.in}
+ addUserKnob {4 channelSelector l "Solo Channel" t "fills all rgbs channels with the selected channel" M {RED GREEN BLUE ALPHA LUMINANCE "" ""}}
+ channelSelector ALPHA
+ addUserKnob {41 out l "output Layer" t "Where you want the solo result" T shuffleOut.out}
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -10
+  ypos -276
+ }
+set N2510ecc0 [stack 0]
+ Shuffle {
+  name shuffle_In
+  xpos -10
+  ypos -222
+ }
+set N25101810 [stack 0]
+ Expression {
+  channel0 {rgba.red rgba.green rgba.blue rgba.alpha}
+  expr0 "(r*0.3) + (g*0.59) + (b*0.11)"
+  channel1 {-rgba.red -rgba.green -rgba.blue}
+  channel2 {-rgba.red -rgba.green -rgba.blue}
+  name expression_MONO
+  xpos 232
+  ypos 4
+ }
+push $N25101810
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name AlphaFlood
+  tile_color 0x272323ff
+  xpos 133
+  ypos 5
+  addUserKnob {20 User}
+ }
+push $N25101810
+ Shuffle {
+  red blue
+  green blue
+  alpha blue
+  name BlueFlood
+  tile_color 0xf1ff
+  xpos 43
+  ypos 5
+  addUserKnob {20 User}
+ }
+push 0
+push $N25101810
+ Shuffle {
+  red green
+  blue green
+  alpha green
+  name GreenFlood
+  tile_color 0xec10ff
+  xpos -56
+  ypos 5
+  addUserKnob {20 User}
+ }
+push $N25101810
+ Shuffle {
+  green red
+  blue red
+  alpha red
+  name FloodRed1
+  tile_color 0xc6717100
+  xpos -150
+  ypos 5
+  addUserKnob {20 User}
+ }
+ Dissolve {
+  inputs 5+1
+  channels rgba
+  which {{parent.channelSelector i}}
+  name Dissolve1
+  xpos -6
+  ypos 134
+ }
+add_layer {gzmoTmp gzmoTmp.red gzmoTmp.green gzmoTmp.blue gzmoTmp.alpha}
+ AddChannels {
+  channels gzmoTmp
+  name AddChannels1
+  xpos -6
+  ypos 175
+ }
+ Shuffle {
+  out gzmoTmp
+  name RGBA_gzmoTmp
+  xpos -6
+  ypos 218
+ }
+push $N2510ecc0
+ Dot {
+  name Dot1
+  xpos -265
+  ypos 1
+ }
+ Copy {
+  inputs 2
+  from0 -rgba.alpha
+  to0 -rgba.alpha
+  channels gzmoTmp
+  name Copy_gzmoTmp
+  xpos -6
+  ypos 254
+ }
+ Shuffle {
+  in gzmoTmp
+  name shuffleOut
+  selected true
+  xpos -6
+  ypos 309
+ }
+ Remove {
+  channels gzmoTmp
+  name Remove1
+  xpos -6
+  ypos 346
+ }
+ Output {
+  name Output1
+  xpos -6
+  ypos 407
+ }
+end_group

@@ -1,0 +1,90 @@
+Gizmo {
+ inputs 2
+ help "<b><u>L_SwitchMatte_v04</b></u>\t\nGrabs the alpha channel from the A input and premultiplies it to the B input.  \n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+ tile_color 0xff00ff
+ addUserKnob {20 SwitchMatte}
+ addUserKnob {6 premult t "Premultiplies the RGB of input B by the specified channel from input A." +STARTLINE}
+ premult true
+ addUserKnob {6 invert +STARTLINE}
+ addUserKnob {41 bbox l "set bbox to " T MergeBB.bbox}
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name A_alpha
+  xpos -114
+  ypos -17
+  number 1
+ }
+set N258e9d70 [stack 0]
+ Dot {
+  name Dot2
+  xpos -367
+  ypos -18
+ }
+ NoOp {
+  name A_BOX
+  xpos -404
+  ypos 108
+ }
+ Input {
+  inputs 0
+  name B_RGB
+  xpos 91
+  ypos -57
+ }
+set N258ee830 [stack 0]
+ Dot {
+  name Dot1
+  xpos -214
+  ypos -58
+ }
+ NoOp {
+  name B_BOX
+  xpos -248
+  ypos 113
+ }
+ Merge2 {
+  inputs 2
+  bbox B
+  name MergeBB
+  xpos -323
+  ypos 228
+ }
+push $N258e9d70
+push $N258ee830
+ ShuffleCopy {
+  inputs 2
+  name ShuffleCopy1
+  xpos 0
+  ypos 48
+ }
+ Invert {
+  channels alpha
+  name Invert1
+  xpos 0
+  ypos 81
+  disable {{1-parent.invert i x1 1}}
+ }
+ Premult {
+  name Premult1
+  xpos 0
+  ypos 148
+  disable {{parent.premult!=1 i}}
+ }
+ CopyBBox {
+  inputs 2
+  name CopyBBox1
+  selected true
+  xpos 0
+  ypos 228
+ }
+ Output {
+  name Output1
+  xpos 0
+  ypos 300
+ }
+end_group

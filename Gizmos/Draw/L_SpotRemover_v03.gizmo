@@ -1,0 +1,272 @@
+
+Gizmo {
+inputs 2
+help "<b><u>L_SpotRemover_v03</b></u>\t\nSpotRemover works similar to MarkerRemoval. This node however blends pixels from areas outside the control matte (alpha) with a smoother feel and does it much faster. It also allows you to control how many pixels surrounding the fill area you use to generate the fill area. There is also independent height and with controls for generating the fill area and the option to control the angle like a directional blur. \n\n<b>”Fill Blur Size” - </b>The amount of blur (height and width) that is used to generate the fill area\n\n<b>”Edge Blur Size” - </b>Pre-blur on the control channel (alpha)\n\n<b>”Sample Size” - </b>The amount of pixels that are used outside the control\n\n<b>”Blur Angle” - </b> allows you to add directionality to the blur in the fill area\n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+addUserKnob {20 SpotRemover}
+addUserKnob {41 size l "Fill Blur Size" T ExponBlur.size}
+addUserKnob {41 size_1 l "Edge Blur Size" T Blur1.size}
+addUserKnob {14 SampleSize l "Sample Size" R 0 100}
+SampleSize 5
+addUserKnob {41 rotate l "Blur Angle" T Transform1.rotate}
+addUserKnob {7 mix}
+mix 1
+addUserKnob {26 ""}
+addUserKnob {22 Button l " Luma Pictures " T "import os\nimport sys\n\ntry:\n import subprocess\n def _run(cmd, shell, wait):\n opener = subprocess.Popen(cmd, shell=shell)\n if wait:\n opener.wait()\n return opener.pid\nexcept ImportError:\n import popen2\n def _run(cmd, shell, wait):\n opener = popen2.Popen3(cmd)\n if wait:\n opener.wait()\n return opener.pid\n\ndef _open(url, wait=0):\n if sys.platform == \"darwin\":\n cmd = \[\"open\", url]\n elif hasattr(os, \"startfile\"):\n return os.startfile(url)\n elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n cmd = \[\"xdg-open\", url]\n else:\n raise OSError, \"Desktop not supported.\"\n\n return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+}
+Input {
+inputs 0
+name matte
+xpos 508
+ypos -371
+number 1
+}
+set N4572350 [stack 0]
+Input {
+inputs 0
+name rgba
+xpos 398
+ypos -371
+}
+ShuffleCopy {
+inputs 2
+name ShuffleCopy3
+xpos 398
+ypos -323
+}
+set N4577de0 [stack 0]
+push $N4572350
+push $N4577de0
+Transform {
+center {1024 778}
+name Transform1
+xpos 308
+ypos -287
+}
+Blur {
+channels alpha
+size 5
+name Blur1
+label "\[value size]"
+xpos 238
+ypos -229
+}
+set N3f1f640 [stack 0]
+push $N3f1f640
+Shuffle {
+name Shuffle1
+xpos 128
+ypos -191
+}
+Invert {
+channels alpha
+name Invert1
+xpos 129
+ypos -150
+}
+set N45ac8b0 [stack 0]
+Premult {
+name Premult2
+xpos 320
+ypos 35
+}
+push $N45ac8b0
+Dilate {
+size {{-parent.SampleSize i x1 -5} {-parent.SampleSize i}}
+name Dilate1
+xpos 255
+ypos -108
+}
+push $N45ac8b0
+Merge2 {
+inputs 2
+operation stencil
+name Merge2
+xpos 255
+ypos -51
+}
+push $N45ac8b0
+ShuffleCopy {
+inputs 2
+name ShuffleCopy2
+xpos 133
+ypos 1
+}
+Premult {
+name Premult1
+xpos 129
+ypos 37
+}
+Group {
+name ExponBlur
+help "The ExponBlur blurs exponentially. \nMost often used with roto shapes \n(requires an alpha channel).\nThe effect is applied to RGBA only."
+xpos 126
+ypos 77
+addUserKnob {20 ExponBlur}
+addUserKnob {14 size R -40 40}
+size 5
+addUserKnob {7 Multiplier R 0 10}
+Multiplier 2
+addUserKnob {6 crop l "crop to format" +STARTLINE}
+crop true
+addUserKnob {26 ""}
+addUserKnob {26 LumaPictures l "" +STARTLINE T "Luma Pictures"}
+}
+Input {
+inputs 0
+name Input1
+xpos -407
+ypos 305
+}
+set N3fb2840 [stack 0]
+Invert {
+name Invert4
+xpos -407
+ypos 360
+disable {{"parent.size>=0 ? 1 : 0" i}}
+}
+set N3fb5480 [stack 0]
+Blur {
+size {{parent.size.w i} {parent.size.h i}}
+crop {{parent.crop i}}
+name Blur1
+label "\[value size]"
+xpos -615
+ypos 477
+}
+push $N3fb5480
+Blur {
+size {{parent.size.w*parent.Multiplier i} {parent.size.h*parent.Multiplier i}}
+crop {{parent.crop i}}
+name Blur2
+label "\[value size]"
+xpos -480
+ypos 476
+}
+Merge2 {
+inputs 2
+name Merge7
+xpos -537
+ypos 572
+}
+push $N3fb5480
+Blur {
+size {{parent.size.w*parent.Multiplier*2 i} {parent.size.h*parent.Multiplier*2 i}}
+crop {{parent.crop i}}
+name Blur3
+label "\[value size]"
+xpos -357
+ypos 475
+}
+Merge2 {
+inputs 2
+name Merge8
+xpos -477
+ypos 637
+}
+push $N3fb5480
+Blur {
+size {{parent.size.w*parent.Multiplier*4 i} {parent.size.h*parent.Multiplier*4 i}}
+crop {{parent.crop i}}
+name Blur4
+label "\[value size]"
+xpos -229
+ypos 475
+}
+Merge2 {
+inputs 2
+name Merge9
+xpos -402
+ypos 707
+}
+Invert {
+name Invert5
+xpos -402
+ypos 768
+disable {{"parent.size>=0 ? 1 : 0"}}
+}
+set N3ff5fe0 [stack 0]
+Viewer {
+name Viewer1
+xpos -713
+ypos 814
+}
+push $N3ff5fe0
+push $N3fb2840
+Dot {
+name Dot2
+xpos -101
+ypos 308
+}
+Dot {
+name Dot1
+xpos -101
+ypos 859
+}
+ShuffleCopy {
+inputs 2
+red red
+green green
+blue blue
+name ChannelsPassThrough
+xpos -402
+ypos 856
+}
+Output {
+name Output1
+xpos -402
+ypos 926
+}
+end_group
+Unpremult {
+name Unpremult1
+xpos 125
+ypos 121
+}
+set N45d79d0 [stack 0]
+Merge2 {
+inputs 2
+name Merge1
+xpos 198
+ypos 174
+}
+ShuffleCopy {
+inputs 2
+name ShuffleCopy1
+xpos 231
+ypos 219
+}
+Transform {
+rotate {{-parent.Transform1.rotate.main i}}
+center {1024 778}
+name Transform2
+xpos 267
+ypos 265
+}
+push $N4577de0
+Keymix {
+inputs 3
+name Keymix1
+xpos 331
+ypos 330
+}
+Dissolve {
+inputs 2
+which {{1-parent.mix i}}
+name Mix
+xpos 398
+ypos 404
+}
+Output {
+name Output1
+xpos 398
+ypos 469
+}
+push $N45d79d0
+Viewer {
+input_process false
+name Viewer1
+selected true
+xpos 129
+ypos -120
+}
+end_group

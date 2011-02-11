@@ -1,0 +1,28 @@
+Gizmo {
+ help "<b><u>L_CropBBox_v01</b></u>\t\n\nCrops any bounding box outside of the input \"width\" and \"height\". \n\t\t\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+ addUserKnob {20 CropBBox}
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 519
+  ypos 429
+ }
+ Crop {
+  box {0 0 {parent.width i} {parent.height i}}
+  reformat true
+  crop false
+  name Crop1
+  xpos 519
+  ypos 469
+ }
+ Output {
+  name Output1
+  xpos 519
+  ypos 569
+ }
+end_group

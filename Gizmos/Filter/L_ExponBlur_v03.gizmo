@@ -1,0 +1,113 @@
+Gizmo {
+ help "L_ExponBlur_v03 The ExponBlur blurs an image with an exponential falloff based upon an alpha. Most often used with roto shapes. The effect is applied to RGBA only. (For any questions, comments or suggestions please email gizmos@luma-pictures.com)"
+ addUserKnob {20 ExponBlur}
+ addUserKnob {14 size R -40 40}
+ addUserKnob {7 Multiplier R 0 10}
+ Multiplier 2
+ addUserKnob {6 crop l "crop to format" +STARTLINE}
+ crop true
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -407
+  ypos 305
+ }
+set N2576cd00 [stack 0]
+ Invert {
+  name Invert4
+  xpos -407
+  ypos 360
+  disable {{"parent.size>=0 ? 1 : 0" i}}
+ }
+set N2576e550 [stack 0]
+ Blur {
+  size {{parent.size.w i} {parent.size.h i}}
+  crop {{parent.crop i}}
+  name Blur1
+  label "\[value size]"
+  xpos -615
+  ypos 477
+ }
+push $N2576e550
+ Blur {
+  size {{parent.size.w*parent.Multiplier i} {parent.size.h*parent.Multiplier i}}
+  crop {{parent.crop i}}
+  name Blur2
+  label "\[value size]"
+  xpos -480
+  ypos 476
+ }
+ Merge2 {
+  inputs 2
+  name Merge7
+  xpos -537
+  ypos 572
+ }
+push $N2576e550
+ Blur {
+  size {{parent.size.w*parent.Multiplier*2 i} {parent.size.h*parent.Multiplier*2 i}}
+  crop {{parent.crop i}}
+  name Blur3
+  label "\[value size]"
+  xpos -357
+  ypos 475
+ }
+ Merge2 {
+  inputs 2
+  name Merge8
+  xpos -477
+  ypos 637
+ }
+push $N2576e550
+ Blur {
+  size {{parent.size.w*parent.Multiplier*4 i} {parent.size.h*parent.Multiplier*4 i}}
+  crop {{parent.crop i}}
+  name Blur4
+  label "\[value size]"
+  xpos -229
+  ypos 475
+ }
+ Merge2 {
+  inputs 2
+  name Merge9
+  xpos -402
+  ypos 707
+ }
+ Invert {
+  name Invert5
+  selected true
+  xpos -402
+  ypos 768
+  disable {{"parent.size>=0 ? 1 : 0" i}}
+ }
+push $N2576cd00
+ Dot {
+  name Dot2
+  xpos -101
+  ypos 308
+ }
+ Dot {
+  name Dot1
+  xpos -101
+  ypos 859
+ }
+ ShuffleCopy {
+  inputs 2
+  red red
+  green green
+  blue blue
+  name ChannelsPassThrough
+  xpos -402
+  ypos 856
+ }
+ Output {
+  name Output1
+  xpos -402
+  ypos 926
+ }
+end_group

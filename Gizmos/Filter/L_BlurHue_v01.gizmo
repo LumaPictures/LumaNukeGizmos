@@ -1,0 +1,69 @@
+Gizmo {
+ addUserKnob {20 BlurHue}
+ addUserKnob {41 size T Blur1.size}
+ addUserKnob {41 crop l "crop to format" T Blur1.crop}
+ addUserKnob {41 mix T Blur1.mix}
+ addUserKnob {6 operationsInLog +STARTLINE}
+ operationsInLog true
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 300
+  ypos -92
+ }
+ Log2Lin {
+  operation lin2log
+  name Log2Lin1
+  xpos 300
+  ypos -53
+  disable {{abs(parent.operationsInLog-1) i}}
+ }
+set N25733220 [stack 0]
+ Saturation {
+  saturation 0
+  name Saturation1
+  xpos 300
+  ypos 102
+ }
+push $N25733220
+ Expression {
+  expr0 (1/(r*.3+g*.59+b*.11))*r
+  expr1 (1/(r*.3+g*.59+b*.11))*g
+  expr2 (1/(r*.3+g*.59+b*.11))*b
+  name Expression1
+  xpos 457
+  ypos 88
+ }
+ Blur {
+  channels rgb
+  maskChannelMask -rgba.alpha
+  name Blur1
+  label "\[value size]"
+  xpos 457
+  ypos 134
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  name Multiply
+  xpos 300
+  ypos 228
+ }
+ Log2Lin {
+  name Log2Lin2
+  selected true
+  xpos 300
+  ypos 268
+  disable {{abs(parent.operationsInLog-1) i}}
+ }
+ Output {
+  name Output1
+  xpos 300
+  ypos 308
+ }
+end_group

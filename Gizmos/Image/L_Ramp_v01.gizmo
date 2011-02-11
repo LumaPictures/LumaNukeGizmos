@@ -1,0 +1,49 @@
+Gizmo {
+ inputs 0
+ help "<b><u>L_Ramp_v01\t</b></u>\nA Shake style ramp\t\t\n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+ addUserKnob {20 Ramp}
+ addUserKnob {4 Orientation M {horizontal vertical}}
+ Orientation vertical
+ addUserKnob {41 format T Constant1.format}
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Constant {
+  inputs 0
+  channels rgb
+  name Constant1
+  selected true
+  xpos 441
+  ypos 148
+ }
+set N2b7e540 [stack 0]
+ Ramp {
+  p0 {0 0}
+  p1 {0 {parent.height i}}
+  name Ramp14
+  xpos 353
+  ypos 268
+ }
+push $N2b7e540
+ Ramp {
+  p0 {0 0}
+  p1 {{parent.width i x1 192} 0}
+  name Ramp1
+  xpos 523
+  ypos 268
+ }
+ Switch {
+  inputs 2
+  which {{parent.Orientation i}}
+  name switch
+  xpos 442
+  ypos 348
+ }
+ Output {
+  name Output1
+  xpos 442
+  ypos 450
+ }
+end_group

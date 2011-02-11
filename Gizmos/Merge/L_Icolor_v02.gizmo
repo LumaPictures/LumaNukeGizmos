@@ -1,0 +1,132 @@
+Gizmo {
+ inputs 2
+ help "<b><u>L_Icolor_v02</b></u>\t\nIcolor will apply the hue information from the A input to the B input.  \n\nNote: Applying operations in log removes some artifacting caused by float values. \n\n(For any questions, comments or suggestions please email gizmos@luma-pictures.com)"
+ addUserKnob {20 User l Icolor}
+ addUserKnob {41 which l mix t "percentage between original and layered Image" T Dissolve1.which}
+ addUserKnob {41 bbox l "set bbox to " T MergeBBox.bbox}
+ addUserKnob {6 operationsInLog +STARTLINE}
+ operationsInLog true
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name A
+  xpos -748
+  ypos 168
+ }
+ Log2Lin {
+  operation lin2log
+  name Log2Lin1
+  selected true
+  xpos -748
+  ypos 248
+  disable {{abs(parent.operationsInLog-1) i}}
+ }
+ Dot {
+  name Dot1
+  xpos -714
+  ypos 420
+ }
+set N258acf60 [stack 0]
+ Input {
+  inputs 0
+  name B
+  xpos -338
+  ypos 168
+  number 1
+ }
+ Log2Lin {
+  operation lin2log
+  name Log2Lin2
+  xpos -338
+  ypos 207
+  disable {{abs(parent.operationsInLog-1) i}}
+ }
+ Expression {
+  expr0 (1/(r*.3+g*.59+b*.11))*r
+  expr1 (1/(r*.3+g*.59+b*.11))*g
+  expr2 (1/(r*.3+g*.59+b*.11))*b
+  name Expression1
+  xpos -344
+  ypos 323
+ }
+ Dot {
+  name Dot2
+  xpos -310
+  ypos 411
+ }
+set N258b8550 [stack 0]
+ Merge2 {
+  inputs 2
+  name MergeBBox
+  xpos -496
+  ypos 696
+ }
+push $N258b8550
+ Multiply {
+  value -1
+  name Multiply2
+  xpos -501
+  ypos 411
+ }
+push $N258acf60
+ Multiply {
+  value -1
+  name Multiply1
+  xpos -650
+  ypos 412
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  name Multiply3
+  xpos -543
+  ypos 502
+ }
+push $N258acf60
+push $N258b8550
+ Merge2 {
+  inputs 2
+  operation multiply
+  name Multiply4
+  xpos -681
+  ypos 499
+ }
+ Merge2 {
+  inputs 2
+  operation max
+  name Merge1
+  xpos -555
+  ypos 594
+ }
+push $N258acf60
+ Dissolve {
+  inputs 2
+  which 1
+  maskChannelMask none
+  maskChannelInput -rgba.red
+  name Dissolve1
+  xpos -704
+  ypos 717
+ }
+ CopyBBox {
+  inputs 2
+  name CopyBBox1
+  xpos -704
+  ypos 766
+ }
+ Log2Lin {
+  name Log2Lin3
+  xpos -704
+  ypos 808
+  disable {{abs(parent.operationsInLog-1) i}}
+ }
+ Output {
+  name Output1
+  xpos -704
+  ypos 845
+ }
+end_group

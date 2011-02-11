@@ -1,0 +1,43 @@
+Gizmo {
+ help "<b><u>L_AspectMask_v01\t</b></u>\t\nApplies an aspect mask over the image.  The mask should properly adjust for image resolution and pixel aspect. \n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+ addUserKnob {20 AspectMask}
+ addUserKnob {7 aspectMask l Aspect R 1 3}
+ aspectMask 1.77
+ addUserKnob {7 mixOpacity l Opacity}
+ mixOpacity 0.5
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 440
+  ypos -692
+ }
+set N2566a330 [stack 0]
+ Crop {
+  box {0 {(parent.height-((parent.width*parent.pixel_aspect)/parent.aspectMask))/2 i} {parent.width i} {((parent.height-((parent.width*parent.pixel_aspect)/parent.aspectMask))/2)+((parent.width*parent.pixel_aspect)/parent.aspectMask) i}}
+  name Crop1
+  xpos 500
+  ypos -592
+  addUserKnob {20 User}
+  addUserKnob {7 aspectRatio R 1 3}
+  aspectRatio {{parent.aspectMask i}}
+ }
+push $N2566a330
+ Dissolve {
+  inputs 2
+  which {{parent.mixOpacity i}}
+  name Dissolve3
+  selected true
+  xpos 440
+  ypos -479
+ }
+ Output {
+  name Output1
+  xpos 440
+  ypos -386
+ }
+end_group

@@ -1,0 +1,453 @@
+
+Gizmo {
+ help "<b><u>L_Grain_v04\t</b></u>\t\nAdded functionality to Nuke's default grain node.\n  \n<b>\"High” - </b>allows control to reduce the grain being added to the brighter parts of the image. \n\n<b>\"Softness” - </b>will blur the grain being added to the image. \n\n<b>\"Saturation\"</b> and <b>\"Luminance” - </b> sliders allow you to reduce either of these values from your grain. \n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+
+ addUserKnob {20 L_Grain}
+ addUserKnob {26 "" l Size}
+ addUserKnob {7 rSize R 0 3}
+ rSize 1.16
+ addUserKnob {7 gSize R 0 3}
+ gSize 1.48
+ addUserKnob {7 bSize R 0 3}
+ bSize 1.88
+ addUserKnob {26 "" l Blacks}
+ addUserKnob {7 rBlack}
+ rBlack 0.11
+ addUserKnob {7 gBlack}
+ gBlack 0.125
+ addUserKnob {7 bBlack}
+ bBlack 0.19
+ addUserKnob {20 Minimum n 1}
+ Minimum 0
+ addUserKnob {7 rMinimum}
+ addUserKnob {7 gMinimum}
+ addUserKnob {7 bMinimum}
+ addUserKnob {20 endGroup_1 l endGroup n -1}
+
+ addUserKnob {26 "" l Mids}
+ addUserKnob {7 rMid}
+ rMid 0.575
+ addUserKnob {7 gMid}
+ gMid 0.63
+ addUserKnob {7 bMid}
+ bMid 0.915
+ addUserKnob {20 Highs n 1}
+ Highs 0
+ addUserKnob {26 "" l Highs}
+ addUserKnob {7 rHigh}
+ rHigh 0.93
+ addUserKnob {7 gHigh}
+ gHigh 0.945
+ addUserKnob {7 bHigh}
+ bHigh 0.995
+ addUserKnob {20 endGroup_5 l endGroup n -1}
+
+ addUserKnob {20 Irregularity n 1}
+ Irregularity 0
+ addUserKnob {7 rIrregularity}
+ rIrregularity 0.73
+ addUserKnob {7 gIrregularity}
+ gIrregularity 0.73
+ addUserKnob {7 bIrregularity}
+ bIrregularity 0.73
+ addUserKnob {20 endGroup_2 l endGroup n -1}
+
+ addUserKnob {20 Softness n 1}
+ Softness 0
+ addUserKnob {7 rSoftness R 0 2}
+ addUserKnob {7 gSoftness R 0 2}
+ addUserKnob {7 bSoftness R 0 2}
+ addUserKnob {20 endGroup_3 l endGroup n -1}
+
+ addUserKnob {20 Other n 1}
+ Other 0
+ addUserKnob {7 GrainSaturation}
+ GrainSaturation 1
+ addUserKnob {7 GrainLuminance}
+ GrainLuminance 1
+ addUserKnob {20 endGroup_4 l endGroup n -1}
+
+ addUserKnob {7 OverallMix}
+ OverallMix 1
+ addUserKnob {6 alphaMask l "Mask with Alpha" +STARTLINE}
+ addUserKnob {6 Invert -STARTLINE}
+ addUserKnob {6 UseMaskInput l "Use Mask Input" -STARTLINE}
+
+ addUserKnob {20 MaskGrade n 1}
+ MaskGrade 0
+ addUserKnob {41 gamma T MaskGradeNode.gamma}
+ addUserKnob {41 add l offset T MaskGradeNode.add}
+ addUserKnob {41 multiply T MaskGradeNode.multiply}
+ addUserKnob {41 white l gain T MaskGradeNode.white}
+ addUserKnob {41 black l lift T MaskGradeNode.black}
+ addUserKnob {41 whitepoint T MaskGradeNode.whitepoint}
+ addUserKnob {41 blackpoint T MaskGradeNode.blackpoint}
+ addUserKnob {41 black_clamp l "black clamp" T MaskGradeNode.black_clamp}
+ addUserKnob {41 white_clamp l "white clamp" -STARTLINE T MaskGradeNode.white_clamp}
+ addUserKnob {20 endGroup_6 l endGroup n -1}
+
+ addUserKnob {26 ""}
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+}
+ Input {
+  inputs 0
+  name mask
+  xpos -372
+  ypos -1067
+  number 1
+ }
+ Input {
+  inputs 0
+  name input
+  xpos -152
+  ypos -1067
+ }
+set N2e63a160 [stack 0]
+ Switch {
+  inputs 2
+  which {{UseMaskInput i}}
+  name MaskSwitch
+  xpos -372
+  ypos -923
+ }
+ Dot {
+  name Dot3
+  xpos -336
+  ypos 354
+ }
+ Grade {
+  channels alpha
+  white_clamp true
+  name MaskGradeNode
+  xpos -262
+  ypos 342
+ }
+push $N2e63a160
+ NoOp {
+  name NoOp1
+  xpos 70
+  ypos -972
+ }
+set N2e643ba0 [stack 0]
+push $N2e643ba0
+ Shuffle {
+  alpha green
+  name Shuffle3
+  xpos 482
+  ypos -912
+ }
+ Grade {
+  channels alpha
+  blackpoint 0.13
+  whitepoint 0.58
+  add 0.045
+  white_clamp true
+  name Grade3
+  xpos 482
+  ypos -819
+ }
+set N2e64a950 [stack 0]
+push $N2e64a950
+push $N2e643ba0
+ Grain2 {
+  name Grain2_1
+  label "Kodak 5248"
+  xpos -72
+  ypos -799
+  red_size {{parent.rSize i}}
+  green_size {{parent.gSize i}}
+  blue_size {{parent.bSize i}}
+  red_i {{parent.rIrregularity i}}
+  green_i {{parent.gIrregularity i}}
+  blue_i {{parent.bIrregularity i}}
+  red_m {{parent.rMid/2 i}}
+  green_m {{parent.gMid/2 i}}
+  blue_m {{parent.bMid/2 i}}
+  black {{parent.rBlack/10 i} {parent.gBlack/10 i} {parent.bBlack/10 i}}
+  minimum {{parent.rMinimum/100 i} {parent.gMinimum/100 i} {parent.bMinimum/100 i}}
+  maskgrain false
+  maskinvert true
+ }
+set N2e64ef50 [stack 0]
+ Keymix {
+  inputs 3
+  mix {{abs(1-parent.bHigh) i}}
+  name Keymix4
+  xpos 516
+  ypos -719
+ }
+ Shuffle {
+  alpha white
+  name Shuffle7
+  xpos 516
+  ypos -672
+ }
+push $N2e643ba0
+ Shuffle {
+  alpha white
+  name Shuffle5
+  xpos -33
+  ypos -652
+ }
+set N2e67a760 [stack 0]
+ Merge2 {
+  inputs 2
+  operation minus
+  name Merge3
+  label "Diff Key"
+  xpos 516
+  ypos -599
+ }
+ Defocus {
+  defocus {{parent.bSoftness*.2 i}}
+  ratio {{pixel_aspect i}}
+  method "full precision"
+  name Defocus4
+  xpos 516
+  ypos -559
+ }
+push $N2e643ba0
+ Merge2 {
+  inputs 2
+  name Merge4
+  label Re-Apply
+  xpos 481
+  ypos -479
+ }
+push $N2e643ba0
+ Shuffle {
+  alpha green
+  name Shuffle2
+  xpos 310
+  ypos -912
+ }
+ Grade {
+  channels alpha
+  blackpoint 0.13
+  whitepoint 0.58
+  add 0.045
+  white_clamp true
+  name Grade2
+  xpos 310
+  ypos -819
+ }
+set N2e6923d0 [stack 0]
+push $N2e6923d0
+push $N2e64ef50
+ Keymix {
+  inputs 3
+  mix {{abs(1-parent.gHigh) i}}
+  name Keymix3
+  xpos 310
+  ypos -719
+ }
+ Shuffle {
+  alpha white
+  name Shuffle6
+  xpos 310
+  ypos -672
+ }
+push $N2e67a760
+ Merge2 {
+  inputs 2
+  operation minus
+  name Merge1
+  label "Diff Key"
+  xpos 310
+  ypos -599
+ }
+ Defocus {
+  defocus {{parent.gSoftness*.2 i}}
+  ratio {{pixel_aspect i}}
+  method "full precision"
+  name Defocus3
+  xpos 310
+  ypos -559
+ }
+push $N2e643ba0
+ Merge2 {
+  inputs 2
+  name Merge2
+  label Re-Apply
+  xpos 278
+  ypos -479
+ }
+push $N2e643ba0
+ Shuffle {
+  alpha red
+  name Shuffle1
+  xpos 156
+  ypos -912
+ }
+ Grade {
+  channels alpha
+  blackpoint 0.13
+  whitepoint 0.58
+  add 0.045
+  white_clamp true
+  name Grade1
+  xpos 156
+  ypos -819
+ }
+set N24c9ee80 [stack 0]
+push $N24c9ee80
+push $N2e64ef50
+ Keymix {
+  inputs 3
+  mix {{abs(1-parent.rHigh) i}}
+  name Keymix2
+  xpos 156
+  ypos -719
+ }
+ Shuffle {
+  alpha white
+  name Shuffle4
+  xpos 156
+  ypos -672
+ }
+push $N2e67a760
+ Merge2 {
+  inputs 2
+  operation minus
+  name Merge12
+  label "Diff Key"
+  xpos 156
+  ypos -599
+ }
+ Defocus {
+  defocus {{parent.rSoftness*.2 i}}
+  ratio {{pixel_aspect i}}
+  method "full precision"
+  name Defocus2
+  xpos 156
+  ypos -559
+ }
+push $N2e643ba0
+ Merge2 {
+  inputs 2
+  name Merge13
+  label Re-Apply
+  xpos 108
+  ypos -479
+ }
+ Copy {
+  inputs 2
+  from0 rgba.green
+  to0 rgba.green
+  name Copy1
+  xpos 190
+  ypos -419
+ }
+ Copy {
+  inputs 2
+  from0 rgba.blue
+  to0 rgba.blue
+  name Copy2
+  xpos 291
+  ypos -339
+ }
+set N24cbc690 [stack 0]
+push $N24cbc690
+ Saturation {
+  saturation 0
+  name Saturation1
+  xpos 395
+  ypos -252
+ }
+push $N2e643ba0
+ Expression {
+  expr0 (1/(r*.3+g*.59+b*.11))*r
+  expr1 (1/(r*.3+g*.59+b*.11))*g
+  expr2 (1/(r*.3+g*.59+b*.11))*b
+  name Expression1
+  xpos 550
+  ypos -272
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  name Multiply4
+  xpos 475
+  ypos -212
+ }
+ Dissolve {
+  inputs 2
+  which {{parent.GrainSaturation i}}
+  name Dissolve_Grain_Saturation
+  xpos 266
+  ypos -179
+ }
+set N24ccb130 [stack 0]
+push $N2e643ba0
+ Saturation {
+  saturation 0
+  name Saturation2
+  xpos 486
+  ypos -68
+ }
+push $N24ccb130
+ Expression {
+  expr0 (1/(r*.3+g*.59+b*.11))*r
+  expr1 (1/(r*.3+g*.59+b*.11))*g
+  expr2 (1/(r*.3+g*.59+b*.11))*b
+  name Expression2
+  xpos 338
+  ypos -92
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  name Multiply1
+  xpos 368
+  ypos -32
+ }
+ Dissolve {
+  inputs 2
+  which {{parent.GrainLuminance i}}
+  name Dissolve_Grain_Luminance
+  xpos 266
+  ypos 21
+ }
+push $N2e643ba0
+ Dissolve {
+  inputs 2
+  channels rgb
+  which {{parent.OverallMix i}}
+  name Dissolve_Overall_Mix
+  xpos 115
+  ypos 268
+ }
+ Keymix {
+  inputs 3
+  invertMask {{-Invert+1 i}}
+  mix {{parent.alphaMask i}}
+  name Keymix1
+  xpos -50
+  ypos 341
+ }
+push $N2e63a160
+ Dot {
+  name Dot1
+  xpos 1094
+  ypos -1062
+ }
+ Dot {
+  name Dot2
+  xpos 1067
+  ypos 449
+ }
+ ShuffleCopy {
+  inputs 2
+  red red
+  green green
+  blue blue
+  name ChannelsPassThrough
+  xpos -44
+  ypos 448
+ }
+ Output {
+  name Output1
+  xpos -50
+  ypos 608
+ }
+end_group

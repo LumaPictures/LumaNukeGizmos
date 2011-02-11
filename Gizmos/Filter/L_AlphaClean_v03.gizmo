@@ -1,0 +1,240 @@
+Gizmo {
+ help "L_AlphaClean_v03 AlphaClean removes stray pixels from the alpha channel of your matte. Removes black pixels in the white area of the matte and white pixels in the black area. ”Size” - controls the size of pixels that are removed. ”Original Edge Amount” - controls how untouched the matte edge is. ”Original Edge Width” - defines the width of the original edge of the matte. (For any questions, comments or suggestions please email gizmos@luma-pictures.com)"
+ addUserKnob {20 AlphaClean}
+ addUserKnob {7 size R 0 10}
+ size 5
+ addUserKnob {7 OrigEdgeAmount}
+ OrigEdgeAmount 1
+ addUserKnob {7 OrigEdgeWidth R 0 10}
+ OrigEdgeWidth 5
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 380
+  ypos -717
+ }
+set N251b0b70 [stack 0]
+ Blur {
+  size {{parent.size i}}
+  name Blur1
+  label "\[value size]"
+  xpos 515
+  ypos -136
+ }
+push $N251b0b70
+ Invert {
+  name Invert1
+  xpos 218
+  ypos -452
+  disable {{"parent.size>=0 ? 1 : 0" i}}
+ }
+set N251b60b0 [stack 0]
+ Blur {
+  size {{parent.size i} {parent.size i}}
+  name Blur7
+  label "\[value size]"
+  xpos 28
+  ypos -332
+ }
+push $N251b60b0
+ Blur {
+  size {{parent.size*2 i} {parent.size*2 i}}
+  name Blur8
+  label "\[value size]"
+  xpos 119
+  ypos -329
+ }
+ Merge2 {
+  inputs 2
+  name Merge2
+  xpos 74
+  ypos -248
+ }
+push $N251b60b0
+ Blur {
+  size {{parent.size*4 i} {parent.size*4 i}}
+  name Blur9
+  label "\[value size]"
+  xpos 218
+  ypos -330
+ }
+ Merge2 {
+  inputs 2
+  name Merge3
+  xpos 129
+  ypos -203
+ }
+push $N251b60b0
+ Blur {
+  size {{parent.size*8 i} {parent.size*8 i}}
+  name Blur10
+  label "\[value size]"
+  xpos 318
+  ypos -328
+ }
+ Merge2 {
+  inputs 2
+  name Merge4
+  xpos 192
+  ypos -154
+ }
+ Invert {
+  name Invert2
+  xpos 192
+  ypos -117
+  disable {{"parent.size>=0 ? 1 : 0"}}
+ }
+ NoOp {
+  name NoOp4
+  tile_color 0xffd600ff
+  label "positiv Expoblur"
+  xpos 192
+  ypos -55
+ }
+push $N251b0b70
+ Invert {
+  name Invert4
+  xpos -190
+  ypos -545
+  disable {{"parent.size<=0 ? 1 : 0" i}}
+ }
+set N251db810 [stack 0]
+ Blur {
+  size {{-parent.size i} {-parent.size i}}
+  name Blur3
+  label "\[value size]"
+  xpos -369
+  ypos -435
+ }
+push $N251db810
+ Blur {
+  size {{-parent.size*2 i} {-parent.size*2 i}}
+  name Blur4
+  label "\[value size]"
+  xpos -265
+  ypos -440
+ }
+ Merge2 {
+  inputs 2
+  name Merge7
+  xpos -306
+  ypos -361
+ }
+push $N251db810
+ Blur {
+  size {{-parent.size*4 i} {-parent.size*4 i}}
+  name Blur5
+  label "\[value size]"
+  xpos -173
+  ypos -439
+ }
+ Merge2 {
+  inputs 2
+  name Merge8
+  xpos -243
+  ypos -323
+ }
+push $N251db810
+ Blur {
+  size {{-parent.size*8 i} {-parent.size*8 i}}
+  name Blur6
+  label "\[value size]"
+  xpos -85
+  ypos -438
+ }
+ Merge2 {
+  inputs 2
+  name Merge9
+  xpos -189
+  ypos -279
+ }
+ Invert {
+  name Invert5
+  xpos -189
+  ypos -234
+  disable {{"parent.size<=0 ? 1 : 0" i}}
+ }
+ NoOp {
+  name NoOp2
+  tile_color 0xffd600ff
+  label "negativ Expoblur"
+  xpos -189
+  ypos -169
+ }
+ Keymix {
+  inputs 3
+  name Keymix1
+  xpos 192
+  ypos 48
+ }
+set N25704e20 [stack 0]
+ Blur {
+  size {{parent.OrigEdgeWidth i}}
+  name Blur2
+  label "\[value size]"
+  xpos 491
+  ypos 114
+ }
+set N257076e0 [stack 0]
+push $N257076e0
+ Merge2 {
+  inputs 2
+  operation xor
+  name Merge1
+  xpos 491
+  ypos 164
+ }
+ Grade {
+  channels all
+  whitepoint 0.3
+  name Grade1
+  xpos 491
+  ypos 200
+ }
+push $N251b0b70
+push $N25704e20
+ Keymix {
+  inputs 3
+  mix {{parent.OrigEdgeAmount i}}
+  name Keymix2
+  xpos 380
+  ypos 284
+ }
+push $N251b0b70
+ ShuffleCopy {
+  inputs 2
+  name ShuffleCopy1
+  xpos 442
+  ypos 353
+ }
+push $N251b0b70
+ Dot {
+  name Dot2
+  xpos 695
+  ypos -714
+ }
+ Dot {
+  name Dot1
+  xpos 695
+  ypos 403
+ }
+ ShuffleCopy {
+  inputs 2
+  red red
+  green green
+  blue blue
+  name ChannelsPassThrough
+  xpos 442
+  ypos 400
+ }
+ Output {
+  name Output1
+  xpos 442
+  ypos 473
+ }
+end_group

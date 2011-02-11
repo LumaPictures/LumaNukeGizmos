@@ -1,0 +1,956 @@
+Gizmo {
+ inputs 2
+ help "<b><u>L_Despill_v05</b></u>\n\n<b>“Despill Math” - </b>Allows you to choose one of several types of despill algorithms.\n<b>“Math Colorspace” - </b>Allows this math to be preformed in a Log or Linear colorspace.  Log usually returns a preferable result. \t\n<b>“Balance White” - </b>This applies a whitepoint hue offset to the input before the suppression and then the reverse after.  For example, if your greenscreen plate has an overall green cast, this setting will allow the green suppression to be focused just on the green screen itself and not suppress the entire plate. \n<b>“Balance Black” - </b>This does the same with the blackpoint. \n<b>“FineTune” - </b>Adjusts various offsets within each type of despill math equation. \n\n<b>“Spill Replace Tab”- </b>Full grade and saturation controls of the spill area.\n\n<b>“Spill Matte Tab”- </b>The area that gets spill suppressed returns a matte channel.  This is what is used to control the \"Spill Replace\" color correction nodes, and where if you choose, to bring in the BG.  Here we have added some controls and filters for this matte. \n<b>“Median Size” - </b>Applies a median filter to the spill matte. \n<b>“Spill Matte Clean” - </b>Applies an \"AlpahClean\" operation to the spill matte.\n<b>“Spill Matte Blur” - </b>Applies a blur filter to the spill matte.\n\n<b>“MultPlus Tab” - </b>here you have the choice to either multiply and add the BG to the FG, or to KeyMix. The color correction settings here are only for the MultPlus choice.  If you keymix its best to adjust the spill matte to achieve your results. \n\n<b>“FG Grade Tab” - </b>color correction controls here for the foreground without effecting the background. \n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+ addUserKnob {20 Despill}
+ addUserKnob {4 ScreenColor l "Screen Color" M {Green Red Blue}}
+ addUserKnob {4 DespillMath l "Despill Math" -STARTLINE M {Average Average2 Max RedLimitsGreen BlueLimitsGreen "" "" ""}}
+ addUserKnob {4 SpillMathColorspace l MathColorspace -STARTLINE M {Log Lin "" "" "" "" ""}}
+ addUserKnob {7 BalanceWhite l "Balance White" R -2 4}
+ BalanceWhite 1
+ addUserKnob {7 BalanceBlack l "Balance Black" R -0.01 0.01}
+ addUserKnob {7 FineTune l "Fine Tune" R -1 1}
+ addUserKnob {26 ""}
+ addUserKnob {41 bbox l "set bbox to " T MergeBBox.bbox}
+ addUserKnob {7 mix}
+ mix 1
+ addUserKnob {26 ""}
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+ addUserKnob {20 SpillReplace l "Spill Replace"}
+ addUserKnob {41 blackpoint_2 l blackpoint T SpillReplaceGrade.blackpoint}
+ addUserKnob {41 whitepoint_2 l whitepoint T SpillReplaceGrade.whitepoint}
+ addUserKnob {41 black l lift T SpillReplaceGrade.black}
+ addUserKnob {41 white l gain T SpillReplaceGrade.white}
+ addUserKnob {41 multiply T SpillReplaceGrade.multiply}
+ addUserKnob {41 add l offset T SpillReplaceGrade.add}
+ addUserKnob {41 gamma_2 l gamma T SpillReplaceGrade.gamma}
+ addUserKnob {41 saturation T SpillReplaceSaturation.saturation}
+ addUserKnob {4 ReplaceColorColorspace l Colorspace M {Log Lin}}
+ addUserKnob {20 SpillMatte}
+ addUserKnob {7 SpillMatteWhitepoint l whitepoint}
+ SpillMatteWhitepoint 1
+ addUserKnob {7 SpillMatteBlackpoint l blackpoint}
+ addUserKnob {7 SpillMatteGamma l gamma R 0 4}
+ SpillMatteGamma 1
+ addUserKnob {26 ""}
+ addUserKnob {41 disable_1 l disable -STARTLINE T SpillMatteMedian.disable}
+ addUserKnob {41 size_1 l "Median Size" T SpillMatteMedian.size}
+ addUserKnob {26 ""}
+ addUserKnob {26 AlphaClean l "" +STARTLINE T "Spill Matte Clean   "}
+ addUserKnob {6 SpillMatteAlphaClean_disable l disable -STARTLINE}
+ SpillMatteAlphaClean_disable true
+ addUserKnob {41 size T SpillMatteAlphaClean.size}
+ addUserKnob {41 OrigEdgeAmount T SpillMatteAlphaClean.OrigEdgeAmount}
+ addUserKnob {41 OrigEdgeWidth T SpillMatteAlphaClean.OrigEdgeWidth}
+ addUserKnob {26 ""}
+ addUserKnob {14 SpillMatteBlur l "Spill Matte Blur" R 0 100}
+ addUserKnob {26 ""}
+ addUserKnob {4 SpillMatteMathColorspace l "Math Colorspace" -STARTLINE M {Log Lin "Defined by Luminance from BG" "" "" ""}}
+ SpillMatteMathColorspace "Defined by Luminance from BG"
+ addUserKnob {20 MultPlus}
+ addUserKnob {6 MultPlusMerge l "Multiply and Plus BG (vs. KeyMix)" +STARTLINE}
+ MultPlusMerge true
+ addUserKnob {41 blackpoint T BG_Grade.blackpoint}
+ addUserKnob {41 whitepoint T BG_Grade.whitepoint}
+ addUserKnob {41 gamma T BG_Grade.gamma}
+ addUserKnob {41 saturation_1 l saturation T BG_Saturation.saturation}
+ addUserKnob {41 black_clamp l "black clamp" T BG_Grade.black_clamp}
+ addUserKnob {41 white_clamp l "white clamp" -STARTLINE T BG_Grade.white_clamp}
+ addUserKnob {4 MultPlusColorspace l ColorSpace M {Log Lin "" "" "" ""}}
+ addUserKnob {20 FGgrade l "FG Grade"}
+ addUserKnob {41 blackpoint_1 l blackpoint T FGGrade.blackpoint}
+ addUserKnob {41 whitepoint_1 l whitepoint T FGGrade.whitepoint}
+ addUserKnob {41 black_1 l lift T FGGrade.black}
+ addUserKnob {41 white_1 l gain T FGGrade.white}
+ addUserKnob {41 multiply_1 l multiply T FGGrade.multiply}
+ addUserKnob {41 add_1 l offset T FGGrade.add}
+ addUserKnob {41 gamma_1 l gamma T FGGrade.gamma}
+ addUserKnob {41 saturation_2 l saturation T FGSaturation.saturation}
+}
+ Input {
+  inputs 0
+  name FG
+  xpos 179
+  ypos -671
+ }
+ Dot {
+  name Dot6
+  xpos 213
+  ypos -618
+ }
+set N2591a310 [stack 0]
+ Dot {
+  name Dot2
+  xpos 984
+  ypos -618
+ }
+ Dot {
+  name Dot5
+  xpos 984
+  ypos 738
+ }
+set N2591d560 [stack 0]
+ Dot {
+  name Dot27
+  xpos 984
+  ypos 882
+ }
+ Input {
+  inputs 0
+  name BG
+  xpos 618
+  ypos -683
+  number 1
+ }
+ Dot {
+  name Dot16
+  xpos 655
+  ypos -236
+ }
+set N25921fd0 [stack 0]
+ Dot {
+  name Dot7
+  xpos 655
+  ypos -54
+ }
+set N25923890 [stack 0]
+ Dot {
+  name Dot13
+  xpos 765
+  ypos -54
+ }
+ Dot {
+  name Dot3
+  xpos 764
+  ypos 558
+ }
+set N25926a70 [stack 0]
+ Dot {
+  name Dot12
+  xpos 819
+  ypos 558
+ }
+ Merge2 {
+  inputs 2
+  name MergeBBox
+  xpos 783
+  ypos 877
+ }
+push $N25921fd0
+ Saturation {
+  saturation 0
+  name Monochrome
+  xpos 508
+  ypos -239
+ }
+ Shuffle {
+  green red
+  blue red
+  alpha red
+  name ShuffleLuma
+  xpos 508
+  ypos -203
+ }
+ Clamp {
+  name ClampLuma
+  xpos 508
+  ypos -174
+ }
+ Dot {
+  name Dot28
+  xpos 544
+  ypos -102
+ }
+push $N2591a310
+ NoOp {
+  name LumaDespillFGPixelAspect
+  xpos 179
+  ypos -573
+ }
+ Expression {
+  expr0 "ScreenColor==1? g : r"
+  channel1 {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+  expr1 "ScreenColor==1 ? r : ScreenColor==0?g:b"
+  expr2 "ScreenColor==2? g : b"
+  expr3 .5
+  name Swaparoonie
+  xpos 179
+  ypos -539
+ }
+ Grade {
+  channels {-rgba.red rgba.green -rgba.blue}
+  blackpoint {{parent.BalanceBlack i}}
+  whitepoint {{parent.BalanceWhite i}}
+  black_clamp false
+  name BalanceGrade
+  xpos 179
+  ypos -510
+ }
+set N25942820 [stack 0]
+ Dot {
+  name Dot21
+  xpos 270
+  ypos -402
+ }
+set N25946f00 [stack 0]
+ Expression {
+  expr1 g>b*(parent.FineTune+1)?b*(parent.FineTune+1):g
+  expr3 g-b*(parent.FineTune+1)
+  name DespilledGreenBlueLimitsGreen3
+  xpos 234
+  ypos -287
+ }
+push $N25946f00
+ Expression {
+  expr1 g>r*(parent.FineTune+1)?r*(parent.FineTune+1):g
+  expr3 g-r*(parent.FineTune+1)
+  name DespilledGreenRedLimitsGreen3
+  xpos 234
+  ypos -311
+ }
+push $N25946f00
+ Expression {
+  temp_name3 spMatte
+  temp_expr3 "clamp(g-(ScreenColor==2 ? max((r * ((1- (parent.FineTune+.5)) * 2)),(b * (parent.FineTune+.5) *2)) : max((r * (parent.FineTune+.5) * 2)  ,  (b *(1- (parent.FineTune+.5)) *2) )),0,1)"
+  channel0 {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+  expr0 r
+  channel1 {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+  expr1 "g - spMatte"
+  channel2 {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+  expr2 b
+  channel3 {-rgba.red -rgba.green -rgba.blue rgba.alpha}
+  expr3 spMatte
+  name DespilledGreenMax3
+  xpos 234
+  ypos -335
+ }
+push $N25946f00
+ Expression {
+  expr1 g>(b+r)/2*(parent.FineTune+1)?(b+r)/2*(parent.FineTune+1):g
+  expr3 g-(r+b)*(parent.FineTune+1)/2
+  name DespilledGreenAverage4
+  xpos 234
+  ypos -359
+ }
+push $N25946f00
+ Expression {
+  temp_name3 spMatte
+  temp_expr3 "clamp(g-(ScreenColor==2 ? ((r * ((1- (parent.FineTune+.5)) * 2))  +  (b * (parent.FineTune+.5) *2) )/2 : ((r * (parent.FineTune+.5) * 2)  +  (b *(1- (parent.FineTune+.5)) *2) )/2),0,1)"
+  channel0 {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+  expr0 r
+  channel1 {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+  expr1 "g - spMatte"
+  channel2 {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+  expr2 b
+  channel3 {-rgba.red -rgba.green -rgba.blue rgba.alpha}
+  expr3 spMatte
+  name DespilledGreenAverage5
+  xpos 234
+  ypos -383
+ }
+ Switch {
+  inputs 5
+  which {{parent.DespillMath i}}
+  name DespillMathSwitch3
+  xpos 234
+  ypos -263
+ }
+ Dot {
+  name Dot22
+  xpos 270
+  ypos -186
+ }
+set N2595eca0 [stack 0]
+ Dot {
+  name Dot17
+  xpos 410
+  ypos -186
+ }
+set N259605b0 [stack 0]
+push $N25942820
+ Log2Lin {
+  operation lin2log
+  black 0
+  name Spill_Lin2Log
+  xpos 124
+  ypos -431
+ }
+ Dot {
+  name Dot15
+  xpos 160
+  ypos -402
+ }
+set N25966350 [stack 0]
+ Expression {
+  expr1 g>b*(parent.FineTune+1)?b*(parent.FineTune+1):g
+  expr3 g-b*(parent.FineTune+1)
+  name DespilledGreenBlueLimitsGreen
+  xpos 124
+  ypos -287
+ }
+push $N25966350
+ Expression {
+  expr1 g>r*(parent.FineTune+1)?r*(parent.FineTune+1):g
+  expr3 g-r*(parent.FineTune+1)
+  name DespilledGreenRedLimitsGreen
+  xpos 124
+  ypos -311
+ }
+push $N25966350
+ Expression {
+  temp_name3 spMatte
+  temp_expr3 "clamp(g-(ScreenColor==2 ? max((r * ((1- (parent.FineTune+.5)) * 2)),(b * (parent.FineTune+.5) *2)) : max((r * (parent.FineTune+.5) * 2)  ,  (b *(1- (parent.FineTune+.5)) *2) )),0,1)"
+  channel0 {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+  expr0 r
+  channel1 {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+  expr1 "g - spMatte"
+  channel2 {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+  expr2 b
+  channel3 {-rgba.red -rgba.green -rgba.blue rgba.alpha}
+  expr3 spMatte
+  name DespilledGreenMax
+  xpos 124
+  ypos -335
+ }
+push $N25966350
+ Expression {
+  expr1 g>(b+r)/2*(parent.FineTune+1)?(b+r)/2*(parent.FineTune+1):g
+  expr3 g-(r+b)*(parent.FineTune+1)/2
+  name DespilledGreenAverage2
+  xpos 124
+  ypos -359
+ }
+push $N25966350
+ Expression {
+  temp_name3 spMatte
+  temp_expr3 "clamp(g-(ScreenColor==2 ? ((r * ((1- (parent.FineTune+.5)) * 2))  +  (b * (parent.FineTune+.5) *2) )/2 : ((r * (parent.FineTune+.5) * 2)  +  (b *(1- (parent.FineTune+.5)) *2) )/2),0,1)"
+  channel0 {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+  expr0 r
+  channel1 {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+  expr1 "g - spMatte"
+  channel2 {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+  expr2 b
+  channel3 {-rgba.red -rgba.green -rgba.blue rgba.alpha}
+  expr3 spMatte
+  name DespilledGreenAverage
+  xpos 124
+  ypos -383
+ }
+ Switch {
+  inputs 5
+  which {{parent.DespillMath i}}
+  name DespillMathSwitch
+  xpos 124
+  ypos -263
+ }
+ Dot {
+  name Dot23
+  xpos 160
+  ypos -222
+ }
+set N2597e040 [stack 0]
+ Dot {
+  name Dot1
+  xpos 325
+  ypos -222
+ }
+set N2597f9c0 [stack 0]
+ Dot {
+  name Dot24
+  xpos 489
+  ypos -222
+ }
+ Keymix {
+  inputs 3
+  name Keymix1
+  xpos 454
+  ypos -114
+ }
+push $N259605b0
+push $N2597f9c0
+ Switch {
+  inputs 3
+  which {{SpillMatteMathColorspace i}}
+  name Switch1
+  xpos 290
+  ypos -107
+ }
+ Grade {
+  channels rgba
+  blackpoint {{parent.SpillMatteBlackpoint i}}
+  whitepoint {{parent.SpillMatteWhitepoint i}}
+  gamma {{parent.SpillMatteGamma i}}
+  name SpillMatteGrade
+  xpos 289
+  ypos -83
+ }
+ Median {
+  channels alpha
+  name SpillMatteMedian
+  xpos 289
+  ypos -54
+  disable true
+ }
+ Group {
+  name SpillMatteAlphaClean
+  help "The alphaClean removes stray pixels from the alpha channel of your matte.\nThe effect is applied to the alpha channel only."
+  xpos 289
+  ypos -11
+  disable {{parent.SpillMatteAlphaClean_disable i x1 1}}
+  addUserKnob {20 AlphaClean}
+  addUserKnob {7 size R 0 10}
+  size 5
+  addUserKnob {7 OrigEdgeAmount}
+  OrigEdgeAmount 1
+  addUserKnob {7 OrigEdgeWidth R 0 10}
+  OrigEdgeWidth 5
+  addUserKnob {6 ClampAlpha l "Clamp Alpha" +STARTLINE}
+  ClampAlpha true
+ }
+  Input {
+   inputs 0
+   name Input1
+   xpos 343
+   ypos -719
+  }
+set N25991e20 [stack 0]
+  Clamp {
+   channels alpha
+   mix {{parent.ClampAlpha i x1001 0}}
+   name clampAlpha1
+   xpos 343
+   ypos -618
+  }
+set N25993680 [stack 0]
+  Blur {
+   size {{parent.size i}}
+   name Blur1
+   label "\[value size]"
+   xpos 515
+   ypos -136
+  }
+push $N25993680
+  Invert {
+   name Invert1
+   xpos 218
+   ypos -452
+   disable {{"parent.size>=0 ? 1 : 0" i}}
+  }
+set N2599b370 [stack 0]
+  Blur {
+   size {{parent.size i} {parent.size i}}
+   name Blur7
+   label "\[value size]"
+   xpos 28
+   ypos -332
+  }
+push $N2599b370
+  Blur {
+   size {{parent.size*2 i} {parent.size*2 i}}
+   name Blur8
+   label "\[value size]"
+   xpos 119
+   ypos -329
+  }
+  Merge2 {
+   inputs 2
+   name Merge2
+   xpos 74
+   ypos -248
+  }
+push $N2599b370
+  Blur {
+   size {{parent.size*4 i} {parent.size*4 i}}
+   name Blur9
+   label "\[value size]"
+   xpos 218
+   ypos -330
+  }
+  Merge2 {
+   inputs 2
+   name Merge3
+   xpos 129
+   ypos -203
+  }
+push $N2599b370
+  Blur {
+   size {{parent.size*8 i} {parent.size*8 i}}
+   name Blur10
+   label "\[value size]"
+   xpos 318
+   ypos -328
+  }
+  Merge2 {
+   inputs 2
+   name Merge4
+   xpos 192
+   ypos -154
+  }
+  Invert {
+   name Invert2
+   xpos 192
+   ypos -117
+   disable {{"parent.size>=0 ? 1 : 0"}}
+  }
+  NoOp {
+   name NoOp4
+   tile_color 0xffd600ff
+   label "positiv Expoblur"
+   xpos 192
+   ypos -55
+  }
+push $N25993680
+  Invert {
+   name Invert4
+   xpos -190
+   ypos -545
+   disable {{"parent.size<=0 ? 1 : 0" i}}
+  }
+set N259c0910 [stack 0]
+  Blur {
+   size {{-parent.size i} {-parent.size i}}
+   name Blur3
+   label "\[value size]"
+   xpos -369
+   ypos -435
+  }
+push $N259c0910
+  Blur {
+   size {{-parent.size*2 i} {-parent.size*2 i}}
+   name Blur4
+   label "\[value size]"
+   xpos -265
+   ypos -440
+  }
+  Merge2 {
+   inputs 2
+   name Merge7
+   xpos -306
+   ypos -361
+  }
+push $N259c0910
+  Blur {
+   size {{-parent.size*4 i} {-parent.size*4 i}}
+   name Blur5
+   label "\[value size]"
+   xpos -173
+   ypos -439
+  }
+  Merge2 {
+   inputs 2
+   name Merge8
+   xpos -243
+   ypos -323
+  }
+push $N259c0910
+  Blur {
+   size {{-parent.size*8 i} {-parent.size*8 i}}
+   name Blur6
+   label "\[value size]"
+   xpos -85
+   ypos -438
+  }
+  Merge2 {
+   inputs 2
+   name Merge9
+   xpos -189
+   ypos -279
+  }
+  Invert {
+   name Invert5
+   xpos -189
+   ypos -234
+   disable {{"parent.size<=0 ? 1 : 0" i}}
+  }
+  NoOp {
+   name NoOp2
+   tile_color 0xffd600ff
+   label "negativ Expoblur"
+   xpos -189
+   ypos -169
+  }
+  Keymix {
+   inputs 3
+   name Keymix1
+   xpos 192
+   ypos 22
+  }
+set N259e5e80 [stack 0]
+  Blur {
+   size {{parent.OrigEdgeWidth i}}
+   name Blur2
+   label "\[value size]"
+   xpos 491
+   ypos 114
+  }
+set N259e8670 [stack 0]
+push $N259e8670
+  Merge2 {
+   inputs 2
+   operation xor
+   name Merge1
+   xpos 491
+   ypos 164
+  }
+  Grade {
+   channels all
+   whitepoint 0.3
+   name Grade1
+   xpos 491
+   ypos 200
+  }
+push $N25993680
+push $N259e5e80
+  Keymix {
+   inputs 3
+   mix {{parent.OrigEdgeAmount i}}
+   name Keymix2
+   xpos 398
+   ypos 294
+  }
+  Clamp {
+   channels alpha
+   mix {{parent.ClampAlpha i}}
+   name clampAlpha
+   xpos 398
+   ypos 438
+  }
+set N259f7b80 [stack 0]
+push $N25991e20
+  Dot {
+   name Dot2
+   xpos 654
+   ypos -546
+  }
+  Dot {
+   name Dot1
+   xpos 695
+   ypos 403
+  }
+  ShuffleCopy {
+   inputs 2
+   name ChannelsPassThrough
+   xpos 455
+   ypos 565
+  }
+  Output {
+   name Output1
+   xpos 455
+   ypos 638
+  }
+push $N25993680
+push $N259f7b80
+  Viewer {
+   inputs 2
+   input_process false
+   name Viewer1
+   xpos 100
+   ypos 645
+  }
+ end_group
+ Blur {
+  size {{parent.SpillMatteBlur i}}
+  name SpillMatteBlur
+  label "\[value size]"
+  xpos 289
+  ypos 23
+ }
+ Clamp {
+  name ClampSpillMatte
+  xpos 289
+  ypos 78
+ }
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name ShuffleSpillMatte
+  xpos 289
+  ypos 253
+ }
+set N25a1a510 [stack 0]
+ Dot {
+  name Dot29
+  xpos 325
+  ypos 306
+ }
+set N25a1f9d0 [stack 0]
+ Dot {
+  name Dot18
+  xpos 380
+  ypos 306
+ }
+set N25a21270 [stack 0]
+ Dot {
+  name Dot19
+  xpos 379
+  ypos 690
+ }
+push $N25a21270
+push $N25923890
+ Log2Lin {
+  operation lin2log
+  black 0
+  name BG_Lin2Log
+  xpos 618
+  ypos 109
+  disable {{parent.MultPlusColorspace i}}
+ }
+ Grade {
+  blackpoint 0.35
+  whitepoint 0.5
+  black_clamp false
+  name BG_Grade
+  xpos 618
+  ypos 133
+ }
+ Saturation {
+  saturation 0.8
+  name BG_Saturation
+  xpos 618
+  ypos 157
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  name MultipylMultPlus
+  xpos 618
+  ypos 303
+ }
+push $N25a1f9d0
+ Dot {
+  name Dot8
+  xpos 325
+  ypos 354
+ }
+set N25a306b0 [stack 0]
+ Dot {
+  name Dot4
+  xpos 325
+  ypos 414
+ }
+set N25a36ab0 [stack 0]
+ Invert {
+  name InvertFGmatte
+  xpos 124
+  ypos 402
+ }
+set N25a38560 [stack 0]
+push $N25a38560
+push $N25a1a510
+ Dot {
+  name Dot20
+  xpos 160
+  ypos 258
+ }
+set N25a38370 [stack 0]
+push $N25a38370
+push $N2595eca0
+ Dot {
+  name Dot26
+  xpos 105
+  ypos -186
+ }
+push $N2597e040
+ Dot {
+  name Dot25
+  xpos 50
+  ypos -222
+ }
+ Switch {
+  inputs 2
+  which {{parent.SpillMathColorspace i}}
+  name Switch3
+  xpos 14
+  ypos -119
+ }
+ Log2Lin {
+  black 0
+  name Spill_Log2Lin
+  xpos 14
+  ypos -23
+  disable {{parent.SpillMathColorspace i}}
+ }
+ Grade {
+  channels {-rgba.red rgba.green -rgba.blue}
+  blackpoint {{parent.BalanceGrade.blackpoint i}}
+  whitepoint {{parent.BalanceGrade.whitepoint i}}
+  add {{parent.BalanceGrade.add i}}
+  reverse true
+  black_clamp false
+  name BalanceBack
+  xpos 14
+  ypos 6
+ }
+ Expression {
+  expr0 "ScreenColor==1? g : r"
+  channel1 {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+  expr1 "ScreenColor==1 ? r : ScreenColor==0?g:b"
+  expr2 "ScreenColor==2? g : b"
+  expr3 a
+  name Swaparoonie_Back
+  xpos 14
+  ypos 49
+ }
+ Log2Lin {
+  operation lin2log
+  black 0
+  name SpillReplace_Lin2Log1
+  xpos 14
+  ypos 169
+  disable {{parent.ReplaceColorColorspace i}}
+ }
+ Grade {
+  inputs 1+1
+  channels rgba
+  black_clamp false
+  name SpillReplaceGrade
+  xpos 14
+  ypos 229
+ }
+ Saturation {
+  inputs 1+1
+  name SpillReplaceSaturation
+  xpos 14
+  ypos 277
+ }
+ Log2Lin {
+  black 0
+  name SpillReplace_Lin2Log2
+  xpos 14
+  ypos 301
+  disable {{parent.ReplaceColorColorspace i}}
+ }
+push $N25a306b0
+ ShuffleCopy {
+  inputs 2
+  red red
+  green green
+  blue blue
+  alpha alpha2
+  name Shuffle_Spillmatte_to_Alpha
+  xpos 14
+  ypos 349
+ }
+ Dot {
+  name Dot32
+  xpos 50
+  ypos 378
+ }
+ Grade {
+  inputs 1+1
+  black_clamp false
+  name FGGrade
+  xpos 14
+  ypos 397
+ }
+ Saturation {
+  inputs 1+1
+  name FGSaturation
+  xpos 14
+  ypos 421
+ }
+ Dot {
+  name Dot14
+  xpos 49
+  ypos 450
+ }
+ Dot {
+  name Dot10
+  xpos 489
+  ypos 450
+ }
+set N25a70130 [stack 0]
+ Log2Lin {
+  operation lin2log
+  black 0
+  name FGMultPlus_Lin2Log
+  xpos 508
+  ypos 481
+  disable {{parent.MultPlusColorspace i}}
+ }
+ Merge2 {
+  inputs 2
+  operation plus
+  name PlusMultPlus
+  xpos 618
+  ypos 529
+ }
+ Log2Lin {
+  black 0
+  name FGMultPlus_Log2Lin
+  xpos 618
+  ypos 589
+  disable {{parent.MultPlusColorspace i}}
+ }
+ Dot {
+  name Dot11
+  xpos 654
+  ypos 630
+ }
+push $N25a36ab0
+ Dot {
+  name Dot9
+  xpos 325
+  ypos 554
+ }
+push $N25926a70
+push $N25a70130
+ Keymix {
+  inputs 3
+  name BG_Keymix
+  xpos 453
+  ypos 546
+ }
+ Switch {
+  inputs 2
+  which {{parent.MultPlusMerge i}}
+  name Switch2
+  xpos 453
+  ypos 625
+ }
+ ShuffleCopy {
+  inputs 2
+  name ShuffleCopy1
+  xpos 453
+  ypos 685
+ }
+push $N2591d560
+ Dissolve {
+  inputs 2
+  which {{parent.mix i}}
+  name Dissolve1
+  xpos 453
+  ypos 726
+ }
+push $N25926a70
+ Reformat {
+  type "to box"
+  box_width {{parent.LumaDespillFGPixelAspect.width i}}
+  box_height {{parent.LumaDespillFGPixelAspect.height i}}
+  box_fixed true
+  box_pixel_aspect {{parent.LumaDespillFGPixelAspect.pixel_aspect i}}
+  name Reformat1
+  xpos 728
+  ypos 817
+ }
+ ShuffleCopy {
+  inputs 2
+  red red
+  green green
+  blue blue
+  name ChannelsPassThrough
+  xpos 453
+  ypos 817
+ }
+ CopyBBox {
+  inputs 2
+  name CopyBBoxBack
+  xpos 453
+  ypos 877
+ }
+ Output {
+  name Output1
+  xpos 453
+  ypos 997
+ }
+end_group

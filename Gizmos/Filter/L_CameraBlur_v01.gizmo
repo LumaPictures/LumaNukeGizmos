@@ -1,0 +1,79 @@
+Gizmo {
+ inputs 2
+ help "<b><u>L_CameraBlur_v01</b></u>\t\nUse this node to add camera motion blur to an element.\n \nCamera should be a rotation only camera.\n \nIn most cases you can quickly use NukeX's camera tracker to solve a rotation only camera for you and use this. \n\n<i>(For any questions, comments or suggestions please email gizmos@luma-pictures.com)</i>"
+ addUserKnob {20 CameraBlur}
+ addUserKnob {41 channels T VectorBlur1.channels}
+ addUserKnob {41 uv l "uv channels" T VectorBlur1.uv}
+ addUserKnob {41 scale l multiply T VectorBlur1.scale}
+ addUserKnob {41 offset T VectorBlur1.offset}
+ addUserKnob {41 grow_bbox l "grow bbox" T VectorBlur1.grow_bbox}
+ addUserKnob {41 method T VectorBlur1.method}
+ addUserKnob {6 disableBlur +STARTLINE}
+ addUserKnob {26 ""}
+
+ addUserKnob {22 Button l "     Luma Pictures     " T "import os\nimport sys\n\ntry:\n    import subprocess\n    def _run(cmd, shell, wait):\n        opener = subprocess.Popen(cmd, shell=shell)\n        if wait:\n            opener.wait()\n        return opener.pid\nexcept ImportError:\n    import popen2\n    def _run(cmd, shell, wait):\n        opener = popen2.Popen3(cmd)\n        if wait:\n            opener.wait()\n        return opener.pid\n\ndef _open(url, wait=0):\n    if sys.platform == \"darwin\":\n        cmd = \[\"open\", url]\n    elif hasattr(os, \"startfile\"):\n        return os.startfile(url)\n    elif os.environ.has_key(\"KDE_FULL_SESSION\") or os.environ.has_key(\"KDE_MULTIHEAD\") or \\\n        os.environ.has_key(\"GNOME_DESKTOP_SESSION_ID\") or os.environ.has_key(\"GNOME_KEYRING_SOCKET\"):\n        cmd = \[\"xdg-open\", url]\n    else:\n        raise OSError, \"Desktop not supported.\"\n\n    return _run(cmd, 0, wait)\n\n_open('http://www.luma-pictures.com/tools/nuke/')" +STARTLINE}
+
+}
+ Input {
+  inputs 0
+  name camera
+  xpos -830
+  ypos -152
+ }
+ Constant {
+  inputs 0
+  channels rgb
+  color 0.5
+  name Constant1
+  xpos -603
+  ypos -321
+ }
+set N25751b30 [stack 0]
+ Sphere {
+  uniform_scale 100000000
+  name Sphere1
+  xpos -465
+  ypos -172
+ }
+push $N25751b30
+ ScanlineRender {
+  inputs 3
+  MB_channel motion
+  name ScanlineRender1
+  xpos -650
+  ypos -32
+ }
+ Input {
+  inputs 0
+  name image
+  xpos -123
+  ypos -132
+  number 1
+ }
+ ShuffleCopy {
+  inputs 2
+  in motion
+  red red
+  green green
+  blue blue
+  out motion
+  name ShuffleCopy1
+  xpos -507
+  ypos 68
+ }
+ VectorBlur {
+  channels rgba
+  uv motion
+  method forward
+  mix {{abs(parent.disableBlur-1) i}}
+  name VectorBlur1
+  selected true
+  xpos -507
+  ypos 188
+ }
+ Output {
+  name Output1
+  xpos -507
+  ypos 288
+ }
+end_group
