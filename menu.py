@@ -46,7 +46,6 @@
 # be a new top-level menu, 'MyCustomMenu', which would have a 'SubMenu', which
 # would have an entry to create a 'MakeAwesome' node.
 
-
 if __name__ == '__main__':
   # Just in case they didn't use the supplied init.py
   gizManager = globals().get('gizManager', None)
